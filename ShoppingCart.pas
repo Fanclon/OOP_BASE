@@ -6,9 +6,9 @@ interface
  type TShoppingCart = class
   private
    fUser:TUser;
-   fListProducts:TList<TProduct>;
-   function GetNotify: TCollectionNotifyEvent<TProduct>;
-   procedure SetNotify(const Value: TCollectionNotifyEvent<TProduct>);
+   fListProducts:TList<IProduct>;
+   function GetNotify: TCollectionNotifyEvent<IProduct>;
+   procedure SetNotify(const Value: TCollectionNotifyEvent<IProduct>);
   public
    constructor Create(const aUser:TUser);
    /// <summary>
@@ -16,22 +16,24 @@ interface
    /// </summary>
    /// <param name="aProduct">Продукт котрый желаем купить</param>
    /// <returns>Индекс в корзине или Ошибка</returns>
-   function BuyProduct(const aProduct:TProduct):Integer;
+   function BuyProduct(const aProduct:IProduct):Integer;
    /// <summary>
    /// Cобытие при изменении ListProducts
    /// </summary>
-   property OnNotify:TCollectionNotifyEvent<TProduct> read GetNotify write SetNotify;
+   property OnNotify:TCollectionNotifyEvent<IProduct> read GetNotify write SetNotify;
    /// <summary>
    /// Список купленных продуктов
    /// </summary>
-   property ListProducts:TList<TProduct> read fListProducts;
+   property ListProducts:TList<IProduct> read fListProducts;
+   destructor Destroy; override;
  end;
 implementation
 
 { TShoppingCart }
 
-function TShoppingCart.BuyProduct(const aProduct: TProduct): Integer;
-var Price:Double;
+function TShoppingCart.BuyProduct(const aProduct: IProduct): Integer;
+var
+  Price:Double;
 begin
   Price:=aProduct.DiscountPrice[fUser];
   if Price > fUser.Balance then
@@ -48,15 +50,21 @@ end;
 constructor TShoppingCart.Create(const aUser:TUser);
 begin
   fUser:=aUser;
-  fListProducts:=TList<TProduct>.Create;
+  fListProducts:=TList<IProduct>.Create;
 end;
 
-function TShoppingCart.GetNotify: TCollectionNotifyEvent<TProduct>;
+destructor TShoppingCart.Destroy;
+begin
+  fListProducts.Free;
+  inherited;
+end;
+
+function TShoppingCart.GetNotify: TCollectionNotifyEvent<IProduct>;
 begin
  Result:=fListProducts.OnNotify;
 end;
 
-procedure TShoppingCart.SetNotify(const Value: TCollectionNotifyEvent<TProduct>);
+procedure TShoppingCart.SetNotify(const Value: TCollectionNotifyEvent<IProduct>);
 begin
   fListProducts.OnNotify:=Value;
 end;

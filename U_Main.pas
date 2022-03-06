@@ -40,7 +40,7 @@ type
     /// <summary>
     /// Список товаров
     /// </summary>
-    fListProducts:TList<TProduct>;
+    fListProducts:TList<IProduct>;
 
     /// <summary>
     /// Список купленных товаров
@@ -56,13 +56,13 @@ type
     /// Событие при изменении fListProducts(Товары на продажу)
     /// </summary>
     procedure OnEditListProducts(Sender:Tobject;
-                                 const Item:TProduct;
+                                 const Item:IProduct;
                                  Action:TCollectionNotification);
     /// <summary>
     /// Событие при изменении ShoppingCart(Купленные товары)
     /// </summary>
     procedure OnEditShoppingCart(Sender:Tobject;
-                                 const Item:TProduct;
+                                 const Item:IProduct;
                                  Action:TCollectionNotification);
     /// <summary>
     /// Процедура для изменения TreeView
@@ -71,7 +71,7 @@ type
     /// <param name="aItem">Обект который изменяем</param>
     /// <param name="aAction">Событие с объектом</param>
     procedure EditItemTreeView(const aTreeView:TTreeView;
-                               const aItem: TProduct;
+                               const aItem: IProduct;
                                aAction: TCollectionNotification);
     /// <summary>
     /// Заполняет данные по пользователю на форму
@@ -115,7 +115,7 @@ begin
   fShoppingCart:=TShoppingCart.Create(fUser);
   fShoppingCart.OnNotify:=OnEditShoppingCart;
   //Создаем пустой лист товаров
-  fListProducts:=TList<TProduct>.create;
+  fListProducts:=TList<IProduct>.create;
   //Подписываемся на отслеживание изменений листа с Товарами
   fListProducts.OnNotify:=OnEditListProducts;
   //Заполняем товары
@@ -133,18 +133,18 @@ begin
                    );
 
   fListProducts.Add(TPrinter.Create(23699,
-                                   'DCP-1623WR',
-                                   'Brother',
-                                   4.23,
-                                   TP_LASER_0
+                                    'DCP-1623WR',
+                                    'Brother',
+                                    4.23,
+                                    TP_LASER_0
                                    )
                    );
 
   fListProducts.Add(TPrinter.Create(5999,
-                                   'DeskJet Plus 4130',
-                                   'HP',
-                                   8.5,
-                                   TP_JET_1
+                                    'DeskJet Plus 4130',
+                                    'HP',
+                                    8.5,
+                                    TP_JET_1
                                    )
                    );
 
@@ -153,7 +153,7 @@ begin
 end;
 
 procedure TForm1.OnEditListProducts(Sender: Tobject;
-                                    const Item: TProduct;
+                                    const Item: IProduct;
                                     Action: TCollectionNotification);
 begin
   EditItemTreeView(tv_Product,
@@ -162,7 +162,7 @@ begin
 end;
 
 procedure TForm1.OnEditShoppingCart(Sender: Tobject;
-                                    const Item: TProduct;
+                                    const Item: IProduct;
                                     Action: TCollectionNotification);
 begin
   EditItemTreeView(tv_cart,
@@ -177,7 +177,7 @@ begin
 end;
 
 procedure TForm1.EditItemTreeView(const aTreeView:TTreeView;
-                                  const aItem: TProduct;
+                                  const aItem: IProduct;
                                   aAction: TCollectionNotification);
 {$REGION 'Поиск ноды в TreeView'}
 function GetNodeTreeView(const aText: string): TTreeNode;
@@ -206,7 +206,6 @@ begin
       //TreeView Уже частично разрушен при OnDestroy
       if not (csDestroying in aTreeView.ComponentState) then
         GetNodeTreeView(aItem.Title).Delete;
-      aItem.Free;
     end;
   end;
 end;
@@ -231,7 +230,7 @@ end;
 procedure TForm1.tv_ProductChange(Sender: TObject; Node: TTreeNode);
 var
   I: Integer;
-  SelectedProduct: TProduct;
+  SelectedProduct: IProduct;
   Characteristics: TList<TCharacteristic>;
 begin
   try
